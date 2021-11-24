@@ -9,6 +9,7 @@
 namespace TEC\Tickets\Commerce;
 
 use tad_DI52_ServiceProvider;
+use TEC\Tickets\Commerce\Amount\Price;
 use TEC\Tickets\Commerce\Gateways;
 use \Tribe__Tickets__Main as Tickets_Plugin;
 
@@ -68,6 +69,7 @@ class Provider extends tad_DI52_ServiceProvider {
 		$this->container->singleton( Checkout::class );
 		$this->container->singleton( Settings::class );
 		$this->container->singleton( Tickets_View::class );
+		$this->container->singleton( Price::class );
 
 		$this->container->register( Status\Status_Handler::class );
 		$this->container->register( Flag_Actions\Flag_Action_Handler::class );

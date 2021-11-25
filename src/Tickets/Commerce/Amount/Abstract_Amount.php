@@ -178,6 +178,8 @@ abstract class Abstract_Amount implements Amount_Interface {
 
 		$pieces  = explode( $separator, $amount );
 
+		// If the initial amount did not have decimals specified, $pieces will be an array of a single
+		// numeric value, so we just return it as a float.
 		if ( 1 === count( $pieces ) && is_numeric( reset( $pieces ) ) ) {
 			return (float) reset( $pieces );
 		}
@@ -188,7 +190,7 @@ abstract class Abstract_Amount implements Amount_Interface {
 	}
 
 	/**
-	 * Value loader. This method calls all registered set_* methods every time the object is updated
+	 * Value loader. This method calls all registered `set_$property_value` methods every time the object is updated
 	 * so the values in each of the formats are always kept up to date.
 	 *
 	 * @since TBD

@@ -57,6 +57,7 @@ class PriceTest extends \Codeception\Test\Unit {
 			[ '元 1,234.56', 1234.56 ],
 			[ '1e+3', 1000.00 ],
 			[ 'abc.df', 0.0 ],
+			[ 'abcdf', 0.0 ],
 		];
 	}
 }

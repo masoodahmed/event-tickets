@@ -160,7 +160,7 @@ abstract class Abstract_Amount implements Amount_Interface {
 		preg_match_all( '/[^\d]/', $amount, $matches );
 
 		// if the string is all digits, it is numeric
-		if ( empty( $matches ) ) {
+		if ( empty( $matches[0] ) ) {
 			return (float) $amount;
 		}
 
@@ -177,6 +177,11 @@ abstract class Abstract_Amount implements Amount_Interface {
 		}
 
 		$pieces  = explode( $separator, $amount );
+
+		if ( 1 === count( $pieces ) && is_numeric( reset( $pieces ) ) ) {
+			return (float) reset( $pieces );
+		}
+
 		$decimal = array_pop( $pieces );
 
 		return implode( '', $pieces ) . '.' . $decimal;

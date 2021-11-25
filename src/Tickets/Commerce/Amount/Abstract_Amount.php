@@ -69,6 +69,10 @@ abstract class Abstract_Amount implements Amount_Interface {
 
 	public function normalize( $amount ) {
 
+		if ( is_numeric( $amount ) ) {
+			return (float) $amount;
+		}
+
 		// If we can split the amount by spaces, remove any blocks that don't contain any digits
 		// This is important in case the currency unit contains the same characters as the decimal/thousands
 		// separators such as in Moroccan Dirham (1,234.56 .د.م.) or Danish Krone (kr. 1.234,56)
@@ -89,18 +93,22 @@ abstract class Abstract_Amount implements Amount_Interface {
 			return (float) $amount;
 		}
 
-		$tokens = array_unique( $matches[0] );
+		$tokens    = array_unique( $matches[0] );
+		$separator = '/////';
 
 		foreach ( $tokens as $token ) {
 			if ( $this->is_decimal_separator( $token, $amount ) ) {
-				$amount = str_replace( $token, '.', trim( $amount, $token ) );
+				$separator = $token;
 				continue;
 			}
 
 			$amount = str_replace( $token, '', $amount );
 		}
 
-		return (float) $amount;
+		$pieces  = explode( $separator, $amount );
+		$decimal = array_pop( $pieces );
+
+		return implode( '', $pieces ) . '.' . $decimal;
 	}
 
 	/**
@@ -128,7 +136,7 @@ abstract class Abstract_Amount implements Amount_Interface {
 		}
 
 		if ( 2 === count( $pieces ) ) {
-			return strlen( $pieces[1] ) < 3;
+			return strlen( array_pop( $pieces ) ) < 3;
 		}
 
 		return false;

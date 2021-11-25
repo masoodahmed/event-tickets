@@ -4,73 +4,144 @@ namespace TEC\Tickets\Commerce\Amount;
 
 abstract class Abstract_Amount implements Amount_Interface {
 
-	public static $instance;
-
+	/**
+	 * Holds the initial value passed to the constructor. This variable does not change.
+	 *
+	 * @var mixed
+	 */
 	private $initial_value;
 
+	/**
+	 * Holds the value normalized value calculated when instantiating an object or setting new values.
+	 *
+	 * @var float
+	 */
 	private $normalized_amount;
 
+	/**
+	 * The integer representation of the amount. By default, this is the float value, rounded to the object precision
+	 * places and multiplied by (10^precision).
+	 *
+	 * @var int
+	 */
 	private $integer = 0;
 
-	private $float = 0;
+	/**
+	 * The float representation of the amount. By default, this is the same as $normalized_amount
+	 *
+	 * @var float
+	 */
+	private $float = 0.0;
 
+	/**
+	 * The decimal precision to use in calculations.
+	 *
+	 * @var int
+	 */
 	private $precision = 2;
 
 	use ValueCalculation;
 
+	/**
+	 * Initialize class
+	 *
+	 * @since TBD
+	 *
+	 * @param mixed $amount the value to set initially
+	 */
 	public function __construct( $amount = 0 ) {
-		$this->set_initial_value( $amount );
+		$this->set_initial_representation( $amount );
 		$this->set_normalized_amount( $amount );
-
-		$this->hydrate();
+		$this->update();
 	}
 
-	private function set_initial_value( $amount ) {
-		if ( empty( $this->initial_value ) ) {
-			$this->initial_value = $amount;
-		}
+	/**
+	 * Public setter to use for any object.
+	 *
+	 * Any time the value in a child class needs to be updated, use this method to do it, as it will update
+	 * all properties of the object state.
+	 *
+	 * @since TBD
+	 *
+	 * @param mixed $amount the value to set
+	 */
+	public function set_value( $amount ) {
+		$this->set_normalized_amount( $amount );
+		$this->update();
 	}
 
-	public function set_normalized_amount( $amount ) {
-		$this->normalized_amount = $this->normalize( $amount );
+	/**
+	 * Get the current integer representation of the object value
+	 *
+	 * @since TBD
+	 *
+	 * @return int
+	 */
+	public function get_integer() {
+		return $this->integer;
 	}
 
-	public function set_integer( $amount ) {
-		$this->integer = $amount;
-	}
-
-	public function set_float( $amount ) {
-		$this->float = $amount;
-	}
-
-	public function set_precision( $amount ) {
-		$this->precision = $amount;
-	}
-
-	public function get_integer( Abstract_Amount $amount ) {
-		return $amount->integer;
-	}
-
-	public function get_float( Abstract_Amount $amount ) {
+	/**
+	 * Get the current float representation of the object value
+	 *
+	 * @since TBD
+	 *
+	 * @return float
+	 */
+	public function get_float() {
 		return $amount->float;
 	}
 
-	public function get_precision( Abstract_Amount $amount ) {
-		return $amount->precision;
+	/**
+	 * Get the current decimal precision set for the object
+	 *
+	 * @since TBD
+	 *
+	 * @return int
+	 */
+	public function get_precision() {
+		return $this->precision;
 	}
 
-	public function get_normalized_amount( Abstract_Amount $amount ) {
-		return $amount->normalized_amount;
+	/**
+	 * Get the current normalized value for the object
+	 *
+	 * @since TBD
+	 *
+	 * @return float
+	 */
+	public function get_normalized_value() {
+		return $this->normalized_amount;
 	}
 
-	public function get_initial_value() {
+	/**
+	 * Get the value initially passed when the object was instantiated
+	 *
+	 * @since TBD
+	 *
+	 * @return mixed
+	 */
+	public function get_initial_representation() {
 		return $this->initial_value;
 	}
 
+	/**
+	 * Transforms any formatted numeric string into a numeric value
+	 *
+	 * @since TBD
+	 *
+	 * @param string $amount the formatted string.
+	 *
+	 * @return float
+	 */
 	public function normalize( $amount ) {
 
 		if ( is_numeric( $amount ) ) {
 			return (float) $amount;
+		}
+
+		if ( $this->is_character_block( $amount ) ) {
+			return 0.0;
 		}
 
 		// If we can split the amount by spaces, remove any blocks that don't contain any digits
@@ -112,6 +183,65 @@ abstract class Abstract_Amount implements Amount_Interface {
 	}
 
 	/**
+	 * Value loader. This method calls all registered set_* methods every time the object is updated
+	 * so the values in each of the formats are always kept up to date.
+	 *
+	 * @since TBD
+	 */
+	private function update() {
+		foreach ( $this->get_setters() as $setter ) {
+			$this->{$setter}();
+		}
+	}
+
+	/**
+	 * Private setter for the initial value the object was created with. This value cannot be changed during the object
+	 * lifecycle.
+	 *
+	 * @since TBD
+	 *
+	 * To set a new value discard the original object and create a new one.
+	 */
+	private function set_initial_representation( $amount ) {
+		if ( empty( $this->initial_value ) ) {
+			$this->initial_value = $amount;
+		}
+	}
+
+	/**
+	 * Private setter for the normalized amount extracted from the initial value.
+	 *
+	 * @since TBD
+	 *
+	 * To set a new value use the public setter `$obj->set_value( $amount )`
+	 */
+	private function set_normalized_amount( $amount ) {
+		$this->normalized_amount = $this->normalize( $amount );
+	}
+
+	/**
+	 * Private setter for the integer representation of the object amount.
+	 *
+	 * @since TBD
+	 *
+	 * To set a new value use the public setter `$obj->set_value( $amount )`
+	 */
+	private function set_integer_value() {
+		$this->integer = $this->to_integer( $this->normalized_amount );
+	}
+
+	/**
+	 * Private setter for the floating point representation of the object amount.
+	 *
+	 * @since TBD
+	 *
+	 * To set a new value use the public setter `$obj->set_value( $amount )`
+	 */
+	private function set_float_value() {
+		$this->float = $this->normalized_amount;
+	}
+
+	/**
 	 * Tries to determine if a token is serving as a decimal separator or something else
 	 * in a string;
 	 *
@@ -119,14 +249,14 @@ abstract class Abstract_Amount implements Amount_Interface {
 	 * in the string and the piece of the string after the separator cannot be longer
 	 * than 2 digits. Anything else is serving another purpose.
 	 *
-	 * @since 5.2.0
+	 * @since TBD
 	 *
 	 * @param $separator string a separator token, like . or ,
 	 * @param $value     string a number formatted as a string
 	 *
 	 * @return bool
 	 */
-	public function is_decimal_separator( $separator, $value ) {
+	private function is_decimal_separator( $separator, $value ) {
 		$pieces = array_filter( explode( $separator, $value ) );
 
 		foreach ( $pieces as $i => $block ) {
@@ -142,15 +272,63 @@ abstract class Abstract_Amount implements Amount_Interface {
 		return false;
 	}
 
+	/**
+	 * Tests if a string is composed entirely of non-digit characters
+	 *
+	 * @since TBD
+	 *
+	 * @param string $block the string to check
+	 *
+	 * @return bool
+	 */
 	private function is_character_block( $block ) {
 		return empty( preg_replace( '/\D/', '', $block ) );
 	}
 
-	private function hydrate() {
-		$amount = $this->get_normalized_amount( $this );
+	/**
+	 * Get all valid setters registered to this object instance
+	 *
+	 * @since TBD
+	 *
+	 * @return array
+	 */
+	private function get_setters() {
+		$methods = get_class_methods( $this );
 
-		$this->set_formatted( $amount );
-		$this->set_integer( $amount );
-		$this->set_decimal( $amount );
+		return array_filter( $methods, function ( $item ) {
+			return $this->is_valid_setter( $item );
+		} );
+	}
+
+	/**
+	 * Checks if a given method name represents a valid setter for the current object
+	 *
+	 * Valid setter names are any methods named `set_{$property}_value`, registered to the calling object,
+	 * for an existing object $property name.
+	 *
+	 * @since TBD
+	 *
+	 * @param string $name a method name
+	 *
+	 * @return bool
+	 */
+	private function is_valid_setter( $name ) {
+		$vars = get_class_vars( __CLASS__ );
+
+		if ( ! method_exists( $this, $name ) ) {
+			return false;
+		}
+
+		if ( strpos( $name, 'set_' ) !== 0 || strpos( $name, '_value' ) !== strlen( $name ) - 6 ) {
+			return false;
+		}
+
+		$name = str_replace( [ 'set_', '_value' ], '', $name );
+
+		if ( in_array( $name, array_keys( $vars ), true ) ) {
+			return true;
+		}
+
+		return false;
 	}
 }

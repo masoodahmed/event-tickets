@@ -9,13 +9,13 @@ class PriceTest extends \Codeception\Test\Unit {
 	public function test_get_initial_value_returns_unchanged() {
 		$initial_value = 10;
 		$price         = new Price( $initial_value );
-		$this->assertEquals( $initial_value, $price->get_initial_value() );
+		$this->assertEquals( $initial_value, $price->get_initial_representation() );
 	}
 
 	/**
 	 * @dataProvider numerical_values
 	 */
-	public function test_normalize_clears_number_formating( $value, $expected ) {
+	public function test_normalize_clears_number_formatting( $value, $expected ) {
 		$price      = new Price();
 		$normalized = $price->normalize( $value );
 		$this->assertEquals( $expected, $normalized );
@@ -54,6 +54,7 @@ class PriceTest extends \Codeception\Test\Unit {
 			[ '₹ 1,234.56', 1234.56 ],
 			[ '元 1,234.56', 1234.56 ],
 			[ '1e+3', 1000.00 ],
+			[ 'abc.df', 0.0 ],
 		];
 	}
 }

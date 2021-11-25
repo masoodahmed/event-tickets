@@ -16,11 +16,4 @@ trait ValueFormatting {
 
 	}
 
-	public function to_integer( $value ) {
-
-	}
-
-	public function to_float( $value ) {
-
-	}
 }

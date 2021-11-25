@@ -7,6 +7,10 @@ trait ValueCalculation {
 	public function sum( $amounts ) {
 	}
 
-	public function multiply( Abstract_Amount $amount, $quantity ) {
+	public function multiply( $quantity ) {
+	}
+
+	public function to_integer( $value ) {
+		return round( $value, $this->precision ) * pow( 10, $this->precision );
 	}
 }

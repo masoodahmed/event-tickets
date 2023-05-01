@@ -7,8 +7,9 @@
 
 namespace TEC\Tickets\Emails\Email;
 
-use \TEC\Tickets\Emails\Email_Template;
-use \TEC\Tickets\Emails\Email_Abstract;
+use TEC\Tickets\Emails\Dispatcher;
+use TEC\Tickets\Emails\Email_Template;
+use TEC\Tickets\Emails\Email_Abstract;
 
 /**
  * Class RSVP_Not_Going
@@ -219,6 +220,6 @@ class RSVP_Not_Going extends Email_Abstract {
 
 		$this->set_placeholders( $placeholders );
 
-		return $this->get_dispatcher()->send();
+		return Dispatcher::from_email( $this )->send();
 	}
 }

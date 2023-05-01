@@ -5,13 +5,15 @@ namespace TEC\Tickets\Emails;
 use Tribe__Tickets__Tickets as Tickets_Module;
 
 /**
- * Class Legacy
+ * Class Legacy_Hijack.
+ *
+ * Mostly used to take over legacy methods of sending emails and using the new ones.w
  *
  * @since   TBD
  *
  * @package TEC\Tickets\Emails
  */
-class Legacy {
+class Legacy_Hijack {
 
 	/**
 	 * Send RSVPs/tickets email for an attendee by injecting itself into the legacy Tickets codebase.

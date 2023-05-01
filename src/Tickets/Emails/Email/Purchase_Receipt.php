@@ -7,9 +7,10 @@
 
 namespace TEC\Tickets\Emails\Email;
 
+use TEC\Tickets\Emails\Dispatcher;
 use \TEC\Tickets\Emails\Email_Template;
 use TEC\Tickets\Emails\Admin\Preview_Data;
-use \TEC\Tickets\Emails\Email_Abstract;
+use TEC\Tickets\Emails\Email_Abstract;
 
 /**
  * Class Purchase_Receipt
@@ -142,6 +143,7 @@ class Purchase_Receipt extends Email_Abstract {
 			'heading'            => $this->get( 'heading' ),
 			'additional_content' => $this->get( 'additional_content' ),
 			'order'              => Preview_Data::get_order(),
+			'attendees'          => Preview_Data::get_attendees(),
 		];
 
 		return wp_parse_args( $args, $defaults );
@@ -219,6 +221,6 @@ class Purchase_Receipt extends Email_Abstract {
 
 		$this->set_placeholders( $placeholders );
 
-		return $this->get_dispatcher()->send();
+		return Dispatcher::from_email( $this )->send();
 	}
 }

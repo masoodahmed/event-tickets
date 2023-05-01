@@ -27,7 +27,7 @@ class Completed_Order extends Email_Abstract {
 	 *
 	 * @var string
 	 */
-	public $id = 'tec_tickets_emails_completed_order';
+	public static string $id = 'tec_tickets_emails_completed_order';
 
 	/**
 	 * Email slug.
@@ -36,7 +36,7 @@ class Completed_Order extends Email_Abstract {
 	 *
 	 * @var string
 	 */
-	public $slug = 'completed-order';
+	public static string $slug = 'completed-order';
 
 	/**
 	 * Email template.
@@ -48,68 +48,24 @@ class Completed_Order extends Email_Abstract {
 	public $template = 'admin-new-order';
 
 	/**
-	 * Get email title.
-	 *
-	 * @since 5.5.10
-	 *
-	 * @return string The email title.
+	 * @inheritDoc
 	 */
-	public function get_title(): string {
-		return esc_html__( 'Completed Order', 'event-tickets' );
+	public function get_default_data(): array {
+		$data = [
+			'to' => esc_html__( 'Completed Order', 'event-tickets' ),
+			'title' => esc_html__( 'Admin', 'event-tickets' ),
+		];
+
+		return array_merge( parent::get_default_data(), $data );
 	}
 
 	/**
-	 * Get email to.
-	 *
-	 * @since 5.5.11
-	 *
-	 * @return string The email "to".
+	 * @inheritDoc
 	 */
-	public function get_to(): string {
-		return esc_html__( 'Admin', 'event-tickets' );
-	}
+	public function prepare_settings(): array {
+		$default_heading = esc_html__( 'Completed order: #{order_number}', 'event-tickets' );
+		$default_subject = esc_html__( '[{site_title}]: Completed order #{order_number}', 'event-tickets' );
 
-	/**
-	 * Get default email recipient.
-	 *
-	 * @since 5.5.10
-	 *
-	 * @return string $recipient The default email recipient.
-	 */
-	public function get_default_recipient(): string {
-		return get_option( 'admin_email' );
-	}
-
-	/**
-	 * Get default email heading.
-	 *
-	 * @since 5.5.10
-	 *
-	 * @return string
-	 */
-	public function get_default_heading(): string {
-		return esc_html__( 'Completed order: #{order_number}', 'event-tickets' );
-	}
-
-	/**
-	 * Get default email subject.
-	 *
-	 * @since 5.5.10
-	 *
-	 * @return string
-	 */
-	public function get_default_subject():string {
-		return esc_html__( '[{site_title}]: Completed order #{order_number}', 'event-tickets' );
-	}
-
-	/**
-	 * Get email settings.
-	 *
-	 * @since 5.5.10
-	 *
-	 * @return array
-	 */
-	public function get_settings_fields(): array {
 		return [
 			[
 				'type' => 'html',
@@ -123,39 +79,39 @@ class Completed_Order extends Email_Abstract {
 				'type' => 'html',
 				'html' => '<p>' . esc_html__( 'The site admin will receive an email about any orders that were made. Customize the content of this specific email using the tools below. The brackets {event_name}, {event_date}, and {ticket_name} can be used to pull dynamic content from the ticket into your email. Learn more about customizing email templates in our Knowledgebase.' ) . '</p>',
 			],
-			$this->get_option_key( 'enabled' ) => [
+			'enabled' => [
 				'type'                => 'toggle',
 				'label'               => esc_html__( 'Enabled', 'event-tickets' ),
 				'default'             => true,
 				'validation_type'     => 'boolean',
 			],
-			$this->get_option_key( 'recipient' ) => [
+			'recipient' => [
 				'type'                => 'text',
 				'label'               => esc_html__( 'Recipient(s)', 'event-tickets' ),
-				'default'             => $this->get_default_recipient(),
+				'default'             => get_option( 'admin_email' ),
 				'size'                => 'large',
 				'validation_type' => 'email_list',
 			],
-			$this->get_option_key( 'subject' ) => [
+			'subject' => [
 				'type'                => 'text',
 				'label'               => esc_html__( 'Subject', 'event-tickets' ),
-				'default'             => $this->get_default_subject(),
-				'placeholder'         => $this->get_default_subject(),
+				'default'             => $default_heading,
+				'placeholder'         => $default_heading,
 				'size'                => 'large',
 				'validation_callback' => 'is_string',
 			],
-			$this->get_option_key( 'heading' ) => [
+			'heading' => [
 				'type'                => 'text',
 				'label'               => esc_html__( 'Heading', 'event-tickets' ),
-				'default'             => $this->get_default_heading(),
-				'placeholder'         => $this->get_default_heading(),
+				'default'             => $default_subject,
+				'placeholder'         => $default_subject,
 				'size'                => 'large',
 				'validation_callback' => 'is_string',
 			],
-			$this->get_option_key( 'add-content' ) => [
+			'additional_content' => [
 				'type'                => 'wysiwyg',
 				'label'               => esc_html__( 'Additional content', 'event-tickets' ),
-				'default'             => $this->get_default_additional_content(),
+				'default'             => '',
 				'tooltip'             => esc_html__( 'Additional content will be displayed below the order details.', 'event-tickets' ),
 				'validation_type'     => 'html',
 				'settings'        => [
@@ -195,9 +151,9 @@ class Completed_Order extends Email_Abstract {
 		$defaults = [
 			'email'              => $this,
 			'is_preview'         => true,
-			'title'              => $this->get_heading(),
-			'heading'            => $this->get_heading(),
-			'additional_content' => $this->get_additional_content(),
+			'title'              => $this->get( 'heading' ),
+			'heading'            => $this->get( 'heading' ),
+			'additional_content' => $this->get( 'additional_content' ),
 			'order'              => $order,
 		];
 
@@ -214,9 +170,9 @@ class Completed_Order extends Email_Abstract {
 	public function get_default_template_context(): array {
 		$defaults = [
 			'email'              => $this,
-			'title'              => $this->get_title(),
-			'heading'            => $this->get_heading(),
-			'additional_content' => $this->get_additional_content(),
+			'title'              => $this->get( 'title' ),
+			'heading'            => $this->get( 'heading' ),
+			'additional_content' => $this->get( 'additional_content' ),
 			'order'              => $this->get( 'order' ),
 		];
 
@@ -250,7 +206,7 @@ class Completed_Order extends Email_Abstract {
 	 * @return bool Whether the email was sent or not.
 	 */
 	public function send() {
-		$recipient = $this->get_recipient();
+		$recipient = $this->get( 'recipient' );
 
 		// Bail if there is no email address to send to.
 		if ( empty( $recipient ) ) {

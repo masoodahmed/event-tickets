@@ -14,7 +14,7 @@ use \TEC\Tickets\Emails\Email_Abstract;
 /**
  * Class Purchase_Receipt
  *
- * @since 5.5.10
+ * @since   5.5.10
  *
  * @package TEC\Tickets\Emails
  */
@@ -27,7 +27,7 @@ class Purchase_Receipt extends Email_Abstract {
 	 *
 	 * @var string
 	 */
-	public $id = 'tec_tickets_emails_purchase_receipt';
+	public static string $id = 'tec_tickets_emails_purchase_receipt';
 
 	/**
 	 * Email slug.
@@ -36,7 +36,7 @@ class Purchase_Receipt extends Email_Abstract {
 	 *
 	 * @var string
 	 */
-	public $slug = 'purchase-receipt';
+	public static string $slug = 'purchase-receipt';
 
 	/**
 	 * Email template.
@@ -48,57 +48,24 @@ class Purchase_Receipt extends Email_Abstract {
 	public $template = 'customer-purchase-receipt';
 
 	/**
-	 * Get email title.
-	 *
-	 * @since 5.5.10
-	 *
-	 * @return string The email title.
+	 * @inheritDoc
 	 */
-	public function get_title(): string {
-		return esc_html__( 'Purchase Receipt', 'event-tickets' );
+	public function get_default_data(): array {
+		$data = [
+			'to'    => esc_html__( 'Purchaser', 'event-tickets' ),
+			'title' => esc_html__( 'Purchase Receipt', 'event-tickets' ),
+		];
+
+		return array_merge( parent::get_default_data(), $data );
 	}
 
 	/**
-	 * Get email to.
-	 *
-	 * @since 5.5.11
-	 *
-	 * @return string The email "to".
+	 * @inheritDoc
 	 */
-	public function get_to(): string {
-		return esc_html__( 'Purchaser', 'event-tickets' );
-	}
+	public function prepare_settings(): array {
+		$default_heading = esc_html__( 'Your purchase receipt for #{order_number}', 'event-tickets' );
+		$default_subject = esc_html__( 'Your purchase receipt for #{order_number}', 'event-tickets' );
 
-	/**
-	 * Get default email heading.
-	 *
-	 * @since 5.5.10
-	 *
-	 * @return string
-	 */
-	public function get_default_heading(): string {
-		return esc_html__( 'Your purchase receipt for #{order_number}', 'event-tickets' );
-	}
-
-	/**
-	 * Get default email subject.
-	 *
-	 * @since 5.5.10
-	 *
-	 * @return string
-	 */
-	public function get_default_subject(): string {
-		return esc_html__( 'Your purchase receipt for #{order_number}', 'event-tickets' );
-	}
-
-	/**
-	 * Get email settings.
-	 *
-	 * @since 5.5.10
-	 *
-	 * @return array
-	 */
-	public function get_settings_fields(): array {
 		return [
 			[
 				'type' => 'html',
@@ -112,34 +79,34 @@ class Purchase_Receipt extends Email_Abstract {
 				'type' => 'html',
 				'html' => '<p>' . esc_html__( 'The ticket purchaser will receive an email about the purchase that was completed.' ) . '</p>',
 			],
-			$this->get_option_key( 'enabled' ) => [
-				'type'                => 'toggle',
-				'label'               => esc_html__( 'Enabled', 'event-tickets' ),
-				'default'             => true,
-				'validation_type'     => 'boolean',
+			'enabled'            => [
+				'type'            => 'toggle',
+				'label'           => esc_html__( 'Enabled', 'event-tickets' ),
+				'default'         => true,
+				'validation_type' => 'boolean',
 			],
-			$this->get_option_key( 'subject' ) => [
+			'subject'            => [
 				'type'                => 'text',
 				'label'               => esc_html__( 'Subject', 'event-tickets' ),
-				'default'             => $this->get_default_subject(),
-				'placeholder'         => $this->get_default_subject(),
+				'default'             => $default_subject,
+				'placeholder'         => $default_subject,
 				'size'                => 'large',
 				'validation_callback' => 'is_string',
 			],
-			$this->get_option_key( 'heading' ) => [
+			'heading'            => [
 				'type'                => 'text',
 				'label'               => esc_html__( 'Heading', 'event-tickets' ),
-				'default'             => $this->get_default_heading(),
-				'placeholder'         => $this->get_default_heading(),
+				'default'             => $default_heading,
+				'placeholder'         => $default_heading,
 				'size'                => 'large',
 				'validation_callback' => 'is_string',
 			],
-			$this->get_option_key( 'add-content' ) => [
-				'type'                => 'wysiwyg',
-				'label'               => esc_html__( 'Additional content', 'event-tickets' ),
-				'default'             => '',
-				'tooltip'             => esc_html__( 'Additional content will be displayed below the purchase receipt details in the email.', 'event-tickets' ),
-				'validation_type'     => 'html',
+			'additional_content' => [
+				'type'            => 'wysiwyg',
+				'label'           => esc_html__( 'Additional content', 'event-tickets' ),
+				'default'         => '',
+				'tooltip'         => esc_html__( 'Additional content will be displayed below the purchase receipt details in the email.', 'event-tickets' ),
+				'validation_type' => 'html',
 				'settings'        => [
 					'media_buttons' => false,
 					'quicktags'     => false,
@@ -164,15 +131,16 @@ class Purchase_Receipt extends Email_Abstract {
 	 * @since 5.5.11
 	 *
 	 * @param array $args The arguments.
+	 *
 	 * @return array $args The modified arguments
 	 */
 	public function get_default_preview_context( $args = [] ): array {
 		$defaults = [
 			'email'              => $this,
 			'is_preview'         => true,
-			'title'              => $this->get_heading(),
-			'heading'            => $this->get_heading(),
-			'additional_content' => $this->get_additional_content(),
+			'title'              => $this->get( 'heading' ),
+			'heading'            => $this->get( 'heading' ),
+			'additional_content' => $this->get( 'additional_content' ),
 			'order'              => Preview_Data::get_order(),
 		];
 
@@ -189,9 +157,9 @@ class Purchase_Receipt extends Email_Abstract {
 	public function get_default_template_context(): array {
 		$defaults = [
 			'email'              => $this,
-			'title'              => $this->get_title(),
-			'heading'            => $this->get_heading(),
-			'additional_content' => $this->get_additional_content(),
+			'title'              => $this->get( 'title' ),
+			'heading'            => $this->get( 'heading' ),
+			'additional_content' => $this->get( 'additional_content' ),
 			'order'              => $this->get( 'order' ),
 		];
 
@@ -226,7 +194,7 @@ class Purchase_Receipt extends Email_Abstract {
 	 * @return bool Whether the email was sent or not.
 	 */
 	public function send() {
-		$recipient = $this->get_recipient();
+		$recipient = $this->get( 'recipient' );
 
 		// Bail if there is no email address to send to.
 		if ( empty( $recipient ) ) {

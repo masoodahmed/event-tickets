@@ -21,7 +21,7 @@ if ( empty( $email ) ) {
 	echo sprintf(
 	// Translators: %s: The email "to".
 		esc_html__( 'To: %s', 'event-tickets' ),
-		esc_html( $email->get_to() )
+		esc_html( $email->get( 'to' ) )
 	);
 	?>
 </div>

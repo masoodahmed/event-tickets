@@ -14,7 +14,7 @@ use \TEC\Tickets\Emails\Email_Abstract;
 /**
  * Class Ticket
  *
- * @since 5.5.9
+ * @since   5.5.9
  *
  * @package TEC\Tickets\Emails
  */
@@ -27,7 +27,7 @@ class Ticket extends Email_Abstract {
 	 *
 	 * @var string
 	 */
-	public $id = 'tec_tickets_emails_ticket';
+	public static string $id = 'tec_tickets_emails_ticket';
 
 	/**
 	 * Email slug.
@@ -36,7 +36,7 @@ class Ticket extends Email_Abstract {
 	 *
 	 * @var string
 	 */
-	public $slug = 'ticket';
+	public static string $slug = 'ticket';
 
 	/**
 	 * Email template.
@@ -48,105 +48,21 @@ class Ticket extends Email_Abstract {
 	public $template = 'ticket';
 
 	/**
-	 * Get email title.
-	 *
-	 * @since 5.5.9
-	 *
-	 * @return string The email title.
+	 * @inheritDoc
 	 */
-	public function get_title(): string {
-		return esc_html__( 'Ticket Email', 'event-tickets' );
+	public function get_default_data(): array {
+		$data = [
+			'to' => esc_html__( 'Attendee(s)', 'event-tickets' ),
+			'title' => esc_html__( 'Ticket Email', 'event-tickets' ),
+		];
+
+		return array_merge( parent::get_default_data(), $data );
 	}
 
 	/**
-	 * Get email to.
-	 *
-	 * @since 5.5.11
-	 *
-	 * @return string The email "to".
+	 * @inheritDoc
 	 */
-	public function get_to(): string {
-		return esc_html__( 'Attendee(s)', 'event-tickets' );
-	}
-
-	/**
-	 * Get default email heading.
-	 *
-	 * @since 5.5.9
-	 *
-	 * @return string
-	 */
-	public function get_default_heading(): string {
-		return sprintf(
-			// Translators: %s Lowercase singular of ticket.
-			esc_html__( 'Here\'s your %s, {attendee_name}!', 'event-tickets' ),
-			tribe_get_ticket_label_singular_lowercase()
-		);
-	}
-
-	/**
-	 * Get default email heading for plural tickets.
-	 *
-	 * @since 5.5.10
-	 *
-	 * @return string
-	 */
-	public function get_default_heading_plural(): string {
-		return sprintf(
-			// Translators: %s Lowercase plural of tickets.
-			esc_html__( 'Here are your %s, {attendee_name}!', 'event-tickets' ),
-			tribe_get_ticket_label_plural_lowercase()
-		);
-	}
-
-	/**
-	 * Get heading for plural tickets.
-	 *
-	 * @since 5.5.10
-	 *
-	 * @return string
-	 */
-	public function get_heading_plural(): string {
-		$option_key = $this->get_option_key( 'heading-plural' );
-		$heading    = tribe_get_option( $option_key, $this->get_default_heading_plural() );
-
-		// @todo: Probably we want more data parsed, or maybe move the filters somewhere else as we're always gonna
-
-		/**
-		 * Allow filtering the email heading globally.
-		 *
-		 * @since 5.5.10
-		 *
-		 * @param string         $heading  The email heading.
-		 * @param string         $id       The email id.
-		 * @param string         $template Template name.
-		 * @param Email_Abstract $this     The email object.
-		 */
-		$heading = apply_filters( 'tec_tickets_emails_heading_plural', $heading, $this->id, $this->template, $this );
-
-		/**
-		 * Allow filtering the email heading.
-		 *
-		 * @since 5.5.10
-		 *
-		 * @param string         $heading  The email heading.
-		 * @param string         $id       The email id.
-		 * @param string         $template Template name.
-		 * @param Email_Abstract $this     The email object.
-		 */
-		$heading = apply_filters( "tec_tickets_emails_{$this->slug}_heading_plural", $heading, $this->id, $this->template, $this );
-
-		return $this->format_string( $heading );
-	}
-
-	/**
-	 * Get default email subject.
-	 *
-	 * @since 5.5.9
-	 *
-	 * @return string
-	 */
-	public function get_default_subject(): string {
+	public function prepare_settings(): array {
 		$default_subject = sprintf(
 			// Translators: %s - Lowercase singular of tickets.
 			esc_html__( 'Your %s from {site_title}', 'event-tickets' ),
@@ -154,72 +70,26 @@ class Ticket extends Email_Abstract {
 		);
 
 		// If they already had a subject set in Tickets Commerce, let's make it the default.
-		return tribe_get_option( Settings::$option_confirmation_email_subject, $default_subject );
-	}
+		$default_subject = tribe_get_option( Settings::$option_confirmation_email_subject, $default_subject );
 
-	/**
-	 * Get default email subject for plural tickets.
-	 *
-	 * @since 5.5.10
-	 *
-	 * @return string
-	 */
-	public function get_default_subject_plural() {
-		return sprintf(
+		$default_subject_plural = sprintf(
 			// Translators: %s - Lowercase plural of tickets.
 			esc_html__( 'Your %s from {site_title}', 'event-tickets' ),
 			tribe_get_ticket_label_plural_lowercase()
 		);
-	}
 
-	/**
-	 * Get subject for plural tickets.
-	 *
-	 * @since 5.5.10
-	 *
-	 * @return string
-	 */
-	public function get_subject_plural(): string {
-		$option_key = $this->get_option_key( 'subject-plural' );
-		$subject    = tribe_get_option( $option_key, $this->get_default_subject_plural() );
+		$default_heading = sprintf(
+			// Translators: %s Lowercase singular of ticket.
+			esc_html__( 'Here\'s your %s, {attendee_name}!', 'event-tickets' ),
+			tribe_get_ticket_label_singular_lowercase()
+		);
 
-		// @todo: Probably we want more data parsed, or maybe move the filters somewhere else as we're always gonna
+		$default_heading_plural = sprintf(
+			// Translators: %s Lowercase plural of tickets.
+			esc_html__( 'Here are your %s, {attendee_name}!', 'event-tickets' ),
+			tribe_get_ticket_label_plural_lowercase()
+		);
 
-		/**
-		 * Allow filtering the email subject globally.
-		 *
-		 * @since 5.5.10
-		 *
-		 * @param string         $subject  The email subject.
-		 * @param string         $id       The email id.
-		 * @param string         $template Template name.
-		 * @param Email_Abstract $this     The email object.
-		 */
-		$subject = apply_filters( 'tec_tickets_emails_subject_plural', $subject, $this->id, $this->template, $this );
-
-		/**
-		 * Allow filtering the email subject.
-		 *
-		 * @since 5.5.10
-		 *
-		 * @param string         $subject  The email subject.
-		 * @param string         $id       The email id.
-		 * @param string         $template Template name.
-		 * @param Email_Abstract $this     The email object.
-		 */
-		$subject = apply_filters( "tec_tickets_emails_{$this->slug}_subject_plural", $subject, $this->id, $this->template, $this );
-
-		return $this->format_string( $subject );
-	}
-
-	/**
-	 * Get email settings fields.
-	 *
-	 * @since 5.5.10
-	 *
-	 * @return array
-	 */
-	public function get_settings_fields(): array {
 		return [
 			[
 				'type' => 'html',
@@ -233,50 +103,50 @@ class Ticket extends Email_Abstract {
 				'type' => 'html',
 				'html' => '<p>' . esc_html__( 'Ticket purchasers will receive an email including their ticket and additional info upon completion of purchase. Customize the content of this specific email using the tools below. The brackets {event_name}, {event_date}, and {ticket_name} can be used to pull dynamic content from the ticket into your email. Learn more about customizing email templates in our Knowledgebase.' ) . '</p>',
 			],
-			$this->get_option_key( 'enabled' ) => [
-				'type'                => 'toggle',
-				'label'               => esc_html__( 'Enabled', 'event-tickets' ),
-				'default'             => true,
-				'validation_type'     => 'boolean',
+			'enabled'        => [
+				'type'            => 'toggle',
+				'label'           => esc_html__( 'Enabled', 'event-tickets' ),
+				'default'         => true,
+				'validation_type' => 'boolean',
 			],
-			$this->get_option_key( 'subject' ) => [
+			'subject'        => [
 				'type'                => 'text',
 				'label'               => esc_html__( 'Subject', 'event-tickets' ),
-				'default'             => $this->get_default_subject(),
-				'placeholder'         => $this->get_default_subject(),
+				'default'             => $default_subject,
+				'placeholder'         => $default_subject,
 				'size'                => 'large',
 				'validation_callback' => 'is_string',
 			],
-			$this->get_option_key( 'subject-plural' ) => [
+			'subject_plural' => [
 				'type'                => 'text',
 				'label'               => esc_html__( 'Subject (plural)', 'event-tickets' ),
-				'default'             => $this->get_default_subject_plural(),
-				'placeholder'         => $this->get_default_subject_plural(),
+				'default'             => $default_subject_plural,
+				'placeholder'         => $default_subject_plural,
 				'size'                => 'large',
 				'validation_callback' => 'is_string',
 			],
-			$this->get_option_key( 'heading' ) => [
+			'heading'        => [
 				'type'                => 'text',
 				'label'               => esc_html__( 'Heading', 'event-tickets' ),
-				'default'             => $this->get_default_heading(),
-				'placeholder'         => $this->get_default_heading(),
+				'default'             => $default_heading,
+				'placeholder'         => $default_heading,
 				'size'                => 'large',
 				'validation_callback' => 'is_string',
 			],
-			$this->get_option_key( 'heading-plural' ) => [
+			'heading_plural' => [
 				'type'                => 'text',
 				'label'               => esc_html__( 'Heading (plural)', 'event-tickets' ),
-				'default'             => $this->get_default_heading_plural(),
-				'placeholder'         => $this->get_default_heading_plural(),
+				'default'             => $default_heading_plural,
+				'placeholder'         => $default_heading_plural,
 				'size'                => 'large',
 				'validation_callback' => 'is_string',
 			],
-			$this->get_option_key( 'add-content' ) => [
-				'type'                => 'wysiwyg',
-				'label'               => esc_html__( 'Additional content', 'event-tickets' ),
-				'default'             => '',
-				'tooltip'             => esc_html__( 'Additional content will be displayed below the tickets in your email.', 'event-tickets' ),
-				'validation_type'     => 'html',
+			'additional_content'    => [
+				'type'            => 'wysiwyg',
+				'label'           => esc_html__( 'Additional content', 'event-tickets' ),
+				'default'         => '',
+				'tooltip'         => esc_html__( 'Additional content will be displayed below the tickets in your email.', 'event-tickets' ),
+				'validation_type' => 'html',
 				'settings'        => [
 					'media_buttons' => false,
 					'quicktags'     => false,
@@ -301,6 +171,7 @@ class Ticket extends Email_Abstract {
 	 * @since 5.5.11
 	 *
 	 * @param array $args The arguments.
+	 *
 	 * @return array $args The modified arguments
 	 */
 	public function get_default_preview_context( $args = [] ): array {
@@ -319,11 +190,11 @@ class Ticket extends Email_Abstract {
 	public function get_default_template_context(): array {
 		$defaults = [
 			'email'              => $this,
-			'title'              => $this->get_title(),
-			'heading'            => $this->get_heading(),
+			'title'              => $this->get( 'title' ),
+			'heading'            => $this->get( 'heading' ),
 			'post_id'            => $this->get( 'post_id' ),
 			'tickets'            => $this->get( 'tickets' ),
-			'additional_content' => $this->get_additional_content(),
+			'additional_content' => $this->get( 'additional_content' ),
 		];
 
 		return $defaults;
@@ -356,7 +227,7 @@ class Ticket extends Email_Abstract {
 	 * @return bool Whether the email was sent or not.
 	 */
 	public function send() {
-		$recipient = $this->get_recipient();
+		$recipient = $this->get( 'recipient' );
 
 		// Bail if there is no email address to send to.
 		if ( empty( $recipient ) ) {

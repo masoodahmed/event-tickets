@@ -52,6 +52,9 @@ class Hooks extends tad_DI52_ServiceProvider {
 		add_action( 'tribe_settings_after_form_element_tab_emails', [ $this, 'action_add_preview_modal_button' ] );
 		add_action( 'admin_footer', [ $this, 'action_add_preview_modal' ] );
 		add_action( 'template_redirect', [ $this, 'action_template_redirect_tickets_emails' ] );
+
+		$email_tab = Emails_Tab::$slug;
+		add_action( "tribe_settings_validate_tab_{$email_tab}", [ $this, 'action_save_individual_email_settings' ] );
 	}
 
 	/**
@@ -60,11 +63,13 @@ class Hooks extends tad_DI52_ServiceProvider {
 	 * @since 5.5.6
 	 */
 	protected function add_filters() {
+		add_filter( 'tribe_settings_get_option_value_pre_display', [ $this, 'filter_individual_email_field_value' ], 15, 3 );
 		add_filter( 'tec_tickets_settings_tabs_ids', [ $this, 'filter_add_tab_id' ] );
 		add_filter( 'tec_tickets_emails_settings_fields', [ $this, 'filter_maybe_add_upgrade_field' ] );
 		add_filter( 'tec_tickets_emails_settings_fields', [ $this, 'filter_add_template_list' ] );
 		add_filter( 'tec_tickets_emails_settings_fields', [ $this, 'filter_add_sender_info_fields' ] );
 		add_filter( 'tec_tickets_emails_settings_fields', [ $this, 'filter_add_email_styling_fields' ] );
+
 
 		// Hook the `Tickets Emails` preview for the AJAX requests.
 		add_filter( 'tribe_tickets_admin_manager_request', [ $this, 'filter_add_preview_modal_content' ], 15, 2 );
@@ -267,5 +272,13 @@ class Hooks extends tad_DI52_ServiceProvider {
 	 */
 	public function action_template_redirect_tickets_emails() {
 		$this->container->make( Web_View::class )->action_template_redirect_tickets_emails();
+	}
+
+	public function action_save_individual_email_settings(): void {
+		$this->container->make( Emails_Tab::class )->save_individual_email_settings();
+	}
+
+	public function filter_individual_email_field_value( $value, $key, $field ) {
+		return $this->container->make( Emails_Tab::class )->modify_individual_email_field_value( $value, $key, $field );
 	}
 }

@@ -68,7 +68,7 @@ class Emails_Tab {
 			'show_save' => true,
 		];
 
-		$tab_settings = apply_filters( 'tec_tickets_commerce_emails_tab_settings', $tab_settings );
+		$tab_settings = apply_filters( 'tec_tickets_emails_tab_settings', $tab_settings );
 
 		new \Tribe__Settings_Tab( static::$slug, esc_html__( 'Emails', 'event-tickets' ), $tab_settings );
 	}
@@ -86,6 +86,71 @@ class Emails_Tab {
 		$tabs[] = static::$slug;
 
 		return $tabs;
+	}
+
+	public function save_individual_email_settings(): void {
+		$email_id  = tribe_get_request_var( 'section' );
+
+		// In this case we are saving the global email settings so allow.
+		if ( empty( $email_id ) ) {
+			return;
+		}
+
+		$email = tribe( Email_Handler::class )->get_email_by_id( $email_id );
+
+		if ( ! $email ) {
+			wp_safe_redirect( $this->get_url( [ 'section' => $email_id, 'error' => 'tec-tickets-invalid-email' ] ) );
+		}
+
+		$email_post = $email->get_post();
+
+		if ( ! $email_post ) {
+			wp_safe_redirect( $this->get_url( [ 'section' => $email_id, 'error' => 'tec-tickets-invalid-email-post' ] ) );
+		}
+
+		$fields_to_save = tribe_get_request_var( 'tec-tickets-emails', [] );
+		$fields = array_filter( $email->get_settings_fields(), 'is_string', ARRAY_FILTER_USE_KEY );
+
+		foreach ( $fields as $key => $field ) {
+			$value = null;
+			if ( isset( $fields_to_save[ $key ] ) ) {
+				$value = $fields_to_save[ $key ];
+			}
+
+			$email->set( $key, $value );
+		}
+
+		$saved = $email->save_data();
+
+		if ( ! $saved ) {
+			wp_safe_redirect( $this->get_url( [ 'section' => $email_id, 'error' => 'tec-tickets-invalid-email-save' ] ) );
+		}
+
+		wp_safe_redirect( $this->get_url( [ 'section' => $email_id ] ) );
+		exit;
+	}
+
+	public function modify_individual_email_field_value( $value, $key, $field ) {
+		if ( is_numeric( $key ) ) {
+			return $value;
+		}
+
+		if ( empty( $field['name'] ) ) {
+			return $value;
+		}
+
+		if ( false === strpos( $field['name'], 'tec-tickets-emails[' ) ) {
+			return $value;
+		}
+
+		$email_id  = tribe_get_request_var( 'section' );
+		$email = tribe( Email_Handler::class )->get_email_by_id( $email_id );
+
+		if ( ! $email ) {
+			return $value;
+		}
+
+		return $email->get( $key );
 	}
 
 	/**

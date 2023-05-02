@@ -55,23 +55,4 @@ class Post_Type {
 
 		return register_post_type( static::SLUG, $post_type_args );
 	}
-
-	/**
-	 * Populate the Tickets Emails post type with the system emails.
-	 *
-	 * @since TBD
-	 */
-	public function populate_email_template_posts(): void {
-		if ( ! did_action( 'init' ) ) {
-			// The global rewrite object is not available, bail. It's required to create the post type.
-			return;
-		}
-
-		$emails  = tribe( Email_Handler::class )->get_emails();
-
-		// iterate on emails, check if exists by slug and create if not.
-		foreach ( $emails as $email ) {
-			$email->create_template_post();
-		}
-	}
 }

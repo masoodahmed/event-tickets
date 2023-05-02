@@ -1378,8 +1378,9 @@ class Tribe__Tickets__RSVP extends Tribe__Tickets__Tickets {
 		$email_class = tribe( TEC\Tickets\Emails\Email\RSVP_Not_Going::class );
 		$email_class->set( 'post_id', $event_id );
 		$email_class->set( 'tickets', $attendees );
-		$email_class->recipient = $to;
-		$sent                   = $email_class->send();
+		$email_class->set( 'recipient', $to );
+
+		$sent = $email_class->send();
 
 		return $sent;
 	}

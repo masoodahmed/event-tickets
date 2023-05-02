@@ -2,7 +2,7 @@
 /**
  * Handles registering and setup for the Tickets Emails settings tab.
  *
- * @since 5.5.6
+ * @since   5.5.6
  *
  * @package TEC\Tickets\Emails
  */
@@ -78,7 +78,7 @@ class Emails_Tab {
 	 *
 	 * @since 5.5.6
 	 *
-	 * @param  array $tabs Current array of tabs ids.
+	 * @param array $tabs Current array of tabs ids.
 	 *
 	 * @return array $tabs Filtered array of tabs ids.
 	 */
@@ -89,7 +89,7 @@ class Emails_Tab {
 	}
 
 	public function save_individual_email_settings(): void {
-		$email_id  = tribe_get_request_var( 'section' );
+		$email_id = tribe_get_request_var( 'section' );
 
 		// In this case we are saving the global email settings so allow.
 		if ( empty( $email_id ) ) {
@@ -103,15 +103,10 @@ class Emails_Tab {
 		}
 
 		$fields_to_save = tribe_get_request_var( 'tec-tickets-emails', [] );
-		$fields = array_filter( $email->get_settings(), 'is_string', ARRAY_FILTER_USE_KEY );
+		$field_keys     = $email->get_data_allowed_save_keys();
 
-		foreach ( $fields as $key => $field ) {
-			$value = null;
-			if ( isset( $fields_to_save[ $key ] ) ) {
-				$value = $fields_to_save[ $key ];
-			}
-
-			$email->set( $key, $value );
+		foreach ( $field_keys as $key ) {
+			$email->set( $key, $fields_to_save[ $key ] ?? null );
 		}
 
 		$saved = $email->save_data();
@@ -137,8 +132,8 @@ class Emails_Tab {
 			return $value;
 		}
 
-		$email_id  = tribe_get_request_var( 'section' );
-		$email = tribe( Email_Handler::class )->get_email_by_id( $email_id );
+		$email_id = tribe_get_request_var( 'section' );
+		$email    = tribe( Email_Handler::class )->get_email_by_id( $email_id );
 
 		if ( ! $email ) {
 			return $value;
@@ -209,21 +204,21 @@ class Emails_Tab {
 			return $this->get_email_settings();
 		}
 
-		$fields = [];
-		$fields['tribe-form-content-start'] = [
+		$fields                                     = [];
+		$fields['tribe-form-content-start']         = [
 			'type' => 'html',
 			'html' => '<div class="tribe-settings-form-wrap">',
 		];
-		$fields['tribe-tickets-emails-header'] = [
+		$fields['tribe-tickets-emails-header']      = [
 			'type' => 'html',
 			'html' => '<h2>' . esc_html__( 'Tickets Emails', 'event-tickets' ) . '</h2>',
 		];
-		$kb_link_html = sprintf( '<a href="%s" target="_blank" rel="nofollow">%s</a>',
+		$kb_link_html                               = sprintf( '<a href="%s" target="_blank" rel="nofollow">%s</a>',
 			'https://www.theeventscalendar.com', // @todo Replace with correct KB URL.
 			esc_html__( 'Knowledgebase', 'event-tickets' )
 		);
-		$description_text = sprintf(
-			// Translators: %s Link to knowledgebase article.
+		$description_text                           = sprintf(
+		// Translators: %s Link to knowledgebase article.
 			esc_html__( 'Customize your customer communications when tickets are purchased, RSVPs are submitted, and for Tickets Commerce order notifications.  Learn More about Tickets Commerce communications in our %s.', 'event-tickets' ),
 			$kb_link_html
 		);
@@ -253,7 +248,7 @@ class Emails_Tab {
 	 */
 	public function is_editing_email( $email = null ) {
 		// Get `section` query string from URL.
-		$editing_email  = tribe_get_request_var( 'section' );
+		$editing_email = tribe_get_request_var( 'section' );
 
 		// If email wasn't passed, just return whether or not string is empty.
 		if ( empty( $email ) ) {
@@ -272,8 +267,8 @@ class Emails_Tab {
 	 * @return array Settings array
 	 */
 	public function get_email_settings(): array {
-		$email_id  = tribe_get_request_var( 'section' );
-		$email = tribe( Email_Handler::class )->get_email_by_id( $email_id );
+		$email_id = tribe_get_request_var( 'section' );
+		$email    = tribe( Email_Handler::class )->get_email_by_id( $email_id );
 
 		$back_link = [
 			[
@@ -284,7 +279,7 @@ class Emails_Tab {
 						'url'  => $this->get_url(),
 					],
 					false ),
-			]
+			],
 		];
 
 		if ( ! $email ) {
@@ -292,7 +287,7 @@ class Emails_Tab {
 				[
 					'type' => 'html',
 					'html' => '<p>' . esc_html__( 'Invalid email id selected.', 'event-tickets' ) . '</p>',
-				]
+				],
 			] );
 		}
 
@@ -304,8 +299,8 @@ class Emails_Tab {
 					esc_attr( static::$key_current_section ),
 					esc_attr( static::$key_current_section ),
 					esc_attr( $email_id )
-				)
-			]
+				),
+			],
 		];
 
 		$settings = $email->get_settings();
@@ -352,7 +347,7 @@ class Emails_Tab {
 		}
 
 		return add_query_arg( [
-			'section'            => $email_id,
+			'section' => $email_id,
 		], $url );
 	}
 }

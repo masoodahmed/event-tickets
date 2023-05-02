@@ -13,13 +13,11 @@ use TEC\Tickets\Emails\Email_Abstract;
  * @package TEC\Tickets\Emails\Email
  */
 class Dummy_Email extends Email_Abstract {
-	public $id = 'tec_tickets_emails_dummy';
+	protected static string $id = 'tec_tickets_emails_dummy';
 
-	public $slug = 'dummy';
+	protected static string $slug = 'dummy';
 
 	public $template = 'dummy';
-
-	public $recipient = 'recipient_dummy@example.dev';
 
 	public $test_is_enabled = true;
 
@@ -30,6 +28,18 @@ class Dummy_Email extends Email_Abstract {
 	public $test_content = '%%CONTENT%%';
 
 	public $test_subject = '%%SUBJECT%%';
+
+	protected function get_default_data(): array {
+		$data = [
+			'enabled' => $this->test_is_enabled,
+			'title' => $this->test_title,
+			'to' => $this->test_to,
+			'content' => $this->test_content,
+			'subject' => $this->test_subject,
+		];
+
+		return array_merge( parent::get_default_data(), $data );
+	}
 
 	public function is_enabled(): bool {
 		return $this->test_is_enabled;
@@ -55,20 +65,7 @@ class Dummy_Email extends Email_Abstract {
 		return $this->test_content;
 	}
 
-
-	public function get_default_recipient(): string {
-		return 'default_recipient_dummy@example.dev';
-	}
-
-	public function get_default_heading(): string {
-		return '%%DEFAULT_HEADING%%';
-	}
-
-	public function get_default_subject():string {
-		return '%%DEFAULT_SUBJECT%%';
-	}
-
-	public function get_settings_fields(): array {
+	public function prepare_settings(): array {
 		return [];
 	}
 

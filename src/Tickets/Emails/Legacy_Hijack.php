@@ -106,7 +106,7 @@ class Legacy_Hijack {
 		foreach ( $tickets_by_event as $event_id => $event_tickets ) {
 			$email_class->set( 'post_id', $event_id );
 			$email_class->set( 'tickets', $event_tickets );
-			$email_class->recipient = $to;
+			$email_class->set( 'recipient', $to );
 
 			$sent = $email_class->send();
 
@@ -213,12 +213,10 @@ class Legacy_Hijack {
 
 		$email_class->set( 'post_id', $event_id );
 		$email_class->set( 'tickets', $all_attendees );
+		$email_class->set( 'recipient', $to );
 
 		// @todo We need to refactor this piece to use the correct sender functionality.
 		$content     = $email_class->get_content( [ 'tickets' => $all_attendees ] );
-
-		// @todo we need to avoid setting the recipient like this.
-		$email_class->recipient = $to;
 
 		$sent = $email_class->send();
 

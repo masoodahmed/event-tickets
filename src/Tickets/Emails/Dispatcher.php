@@ -217,7 +217,7 @@ class Dispatcher {
 		 */
 		$headers = apply_filters( 'tec_tickets_emails_dispatcher_headers', $this->headers, $this );
 
-		$email_slug = $this->get_email()->slug;
+		$email_slug = $this->get_email()::get_slug();
 
 		/**
 		 * Filter the headers for the particular email using this dispatcher.
@@ -269,7 +269,7 @@ class Dispatcher {
 		 */
 		$attachments = apply_filters( 'tec_tickets_emails_dispatcher_attachments', $this->attachments, $this );
 
-		$email_slug = $this->get_email()->slug;
+		$email_slug = $this->get_email()::get_slug();
 
 		/**
 		 * Filter the attachments for the particular email.
@@ -302,7 +302,7 @@ class Dispatcher {
 		 */
 		$to = apply_filters( 'tec_tickets_emails_dispatcher_to', $this->to, $this );
 
-		$email_slug = $this->get_email()->slug;
+		$email_slug = $this->get_email()::get_slug();
 
 		/**
 		 * Allow filtering the email recipient for the particular email.
@@ -346,7 +346,7 @@ class Dispatcher {
 		 */
 		$subject = apply_filters( 'tec_tickets_emails_dispatcher_subject', $this->subject, $this );
 
-		$email_slug = $this->get_email()->slug;
+		$email_slug = $this->get_email()::get_slug();
 
 		/**
 		 * Allow filtering the email subject.
@@ -390,7 +390,7 @@ class Dispatcher {
 		 */
 		$content = apply_filters( 'tec_tickets_emails_dispatcher_content', $this->content, $this );
 
-		$email_slug = $this->get_email()->slug;
+		$email_slug = $this->get_email()::get_slug();
 
 		/**
 		 * Allow filtering the email content.

@@ -5,7 +5,7 @@
  * @since  5.5.6  List item of email templates for Emails settings tab.
  *
  * @var array<Email_Abstract>  $emails  Array of email info.
- * @var array<Email_Abstract>    $email   Email info.
+ * @var Email_Abstract    $email   Email info.
  */
 
 use TEC\Tickets\Emails\Email_Abstract;

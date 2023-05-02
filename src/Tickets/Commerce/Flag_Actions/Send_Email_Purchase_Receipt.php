@@ -4,6 +4,7 @@ namespace TEC\Tickets\Commerce\Flag_Actions;
 
 use TEC\Tickets\Commerce\Order;
 use TEC\Tickets\Commerce\Status\Status_Interface;
+use TEC\Tickets\Emails\Email\Purchase_Receipt;
 
 /**
  * Class Send_Email_Purchase_Receipt, normally triggered when an order is completed.
@@ -55,11 +56,11 @@ class Send_Email_Purchase_Receipt extends Flag_Action_Abstract {
 		$provider  = tribe( $order->provider );
 		$attendees = $provider->get_attendees_by_order_id( $order->id );
 
-		$email_class = tribe( \TEC\Tickets\Emails\Email\Purchase_Receipt::class );
+		$email_class = tribe( Purchase_Receipt::class );
 
 		$email_class->set( 'order', $order );
 		$email_class->set( 'attendees', $attendees );
-		$email_class->recipient = $order->purchaser['email'];
+		$email_class->set( 'recipient', $order->purchaser['email'] );
 
 		return $email_class->send();
 	}

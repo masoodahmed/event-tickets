@@ -26,6 +26,13 @@ use Tribe__Utils__Array as Arr;
  */
 abstract class Email_Abstract {
 
+	/**
+	 * Option prefix for the Ticket Emails data stored on the database.
+	 *
+	 * @since TBD
+	 *
+	 * @var string
+	 */
 	protected const OPTION_PREFIX = 'tec-tickets-emails-';
 
 	/**
@@ -63,33 +70,6 @@ abstract class Email_Abstract {
 	 * @var string
 	 */
 	public $recipient;
-
-	/**
-	 * Email title.
-	 *
-	 * @since 5.5.9
-	 *
-	 * @var string
-	 */
-	public $title;
-
-	/**
-	 * Email version number.
-	 *
-	 * @since 5.5.9
-	 *
-	 * @var string
-	 */
-	public $version;
-
-	/**
-	 * Email subject.
-	 *
-	 * @since 5.5.9
-	 *
-	 * @var string
-	 */
-	public $subject = '';
 
 	/**
 	 * Strings to find/replace in subjects/headings.
@@ -155,7 +135,6 @@ abstract class Email_Abstract {
 	 */
 	protected function get_default_data(): array {
 		$data = [
-			'template'   => $this->template,
 			'version'    => \Tribe__Tickets__Main::VERSION,
 			'from_email' => tribe_get_option( Emails_Settings::$option_sender_email, tribe( Emails_Settings::class )->get_default_sender_email() ),
 			'from_name'  => tribe_get_option( Emails_Settings::$option_sender_name, tribe( Emails_Settings::class )->get_default_sender_name() ),
@@ -240,7 +219,7 @@ abstract class Email_Abstract {
 		 */
 		$placeholders = apply_filters( 'tec_tickets_emails_placeholders', $this->placeholders, $this );
 
-		$email_slug = static::$slug;
+		$email_slug = static::get_slug();
 
 		/**
 		 * Filter the placeholders for the particular email.
@@ -293,63 +272,6 @@ abstract class Email_Abstract {
 	}
 
 	/**
-	 * Get post object of email.
-	 *
-	 * @since 5.5.9
-	 *
-	 * @return WP_Post|null;
-	 */
-	public function get_post(): ?WP_Post {
-		return get_page_by_path( static::get_id(), OBJECT, Post_Type::SLUG );
-	}
-
-	/**
-	 * Creates the Post in the Database for this Email.
-	 *
-	 * @since TBD
-	 *
-	 * @return int|WP_Error The post ID on success. The value 0 or WP_Error on failure.
-	 */
-	public function create_template_post() {
-		if ( $post = $this->get_post() ) {
-			return new WP_Error(
-				'tec-tickets-emails-email-template-already-exists',
-				'Template post already exists for this email.',
-				[
-					'post'  => $post,
-					'email' => $this,
-				]
-			);
-		}
-
-		$data = $this->get_data();
-		$meta = [];
-		foreach ( $data as $meta_key => $meta_value ) {
-			$meta_key          = $this->get_meta_key( $meta_key );
-			$meta[ $meta_key ] = $meta_value;
-		}
-
-		$args     = [
-			'post_name'   => static::get_id(),
-			'post_title'  => $this->get( 'title' ),
-			'post_status' => 'publish',
-			'post_type'   => Post_Type::SLUG,
-			'meta_input'  => $meta,
-		];
-		$inserted = wp_insert_post( $args );
-
-		if ( $inserted instanceof WP_Error ) {
-			do_action( 'tribe_log', 'error', 'Error creating email post.', [
-				'class'      => __CLASS__,
-				'post_title' => $this->get( 'title' ),
-				'error'      => $inserted->get_error_message(),
-			] );
-		}
-
-		return $inserted;
-	}
-
-	/**
 	 * Get edit URL.
 	 *
 	 * @since 5.5.9
@@ -368,17 +290,6 @@ abstract class Email_Abstract {
 	}
 
 	/**
-	 * Get setting option key.
-	 *
-	 * @since TBD
-	 *
-	 * @return string
-	 */
-	protected function get_option_key(): string {
-		return static::OPTION_PREFIX . static::get_slug();
-	}
-
-	/**
 	 * Checks if this email is enabled.
 	 *
 	 * @since 5.5.10
@@ -386,7 +297,7 @@ abstract class Email_Abstract {
 	 * @return bool
 	 */
 	public function is_enabled(): bool {
-		return tribe_is_truthy( $this->get( 'enable', true ) );
+		return tribe_is_truthy( $this->get( 'enabled' ) );
 	}
 
 	/**
@@ -409,7 +320,7 @@ abstract class Email_Abstract {
 		 */
 		$settings = apply_filters( 'tec_tickets_emails_settings', $settings, $this );
 
-		$email_slug = static::$slug;
+		$email_slug = static::get_slug();
 
 		/**
 		 * Allow filtering the settings for this email.
@@ -462,7 +373,7 @@ abstract class Email_Abstract {
 		 */
 		$args = apply_filters( 'tec_tickets_emails_template_args', $args, $this->template, $this );
 
-		$email_slug = static::$slug;
+		$email_slug = static::get_slug();
 
 		/**
 		 * Allow filtering the template context.
@@ -503,7 +414,7 @@ abstract class Email_Abstract {
 		 */
 		$args = apply_filters( 'tec_tickets_emails_preview_args', $args, $this->template, $this );
 
-		$email_slug = static::$slug;
+		$email_slug = static::get_slug();
 
 		/**
 		 * Allow filtering the template context.
@@ -545,6 +456,25 @@ abstract class Email_Abstract {
 		return Arr::get( $this->get_data(), $name, $default );
 	}
 
+	/**
+	 * Get setting option key.
+	 *
+	 * @since TBD
+	 *
+	 * @return string
+	 */
+	protected function get_option_key(): string {
+		return static::OPTION_PREFIX . static::get_slug();
+	}
+
+	protected function get_db_data(): array {
+		$db_data = get_option( $this->get_option_key(), [] );
+		if ( ! is_array( $db_data ) ) {
+			$db_data = [];
+		}
+		return $db_data;
+	}
+
 	protected function generate_default_data_from_settings(): array {
 		$fields = $this->get_settings();
 		$fields = array_filter( $fields, 'is_string', ARRAY_FILTER_USE_KEY );
@@ -557,36 +487,29 @@ abstract class Email_Abstract {
 		return $data;
 	}
 
+	public function get_data_allowed_save_keys(): array {
+		$fields = $this->get_settings();
+		$fields = array_filter( $fields, 'is_string', ARRAY_FILTER_USE_KEY );
+		$allowed_keys = array_keys( $fields );
+		$allowed_keys[] = 'version';
+
+		return $allowed_keys;
+	}
+
 	public function get_data(): array {
 		if ( null === $this->data ) {
-			$this->data = $this->get_default_data();
-			$post       = $this->get_post();
-			if ( ! $post ) {
-				return $this->data;
-			}
-
-			$meta = get_post_meta( $post->ID );
-			foreach ( $meta as $key => $values ) {
-				$key                = $this->remove_meta_key_prefix( $key );
-				$this->data[ $key ] = count( $values ) === 1 ? reset( $values ) : $values;
-			}
+			$this->data = array_merge( $this->get_default_data(), $this->get_db_data() );
 		}
 
 		return $this->data;
 	}
 
-	/**
-	 * Getter to access dynamic properties.
-	 *
-	 * @since TBD
-	 *
-	 * @return null|bool
-	 */
 	public function save_data(): ?bool {
+		$allowed_keys = $this->get_data_allowed_save_keys();
+		$data = array_filter( $this->get_data(), static function( $key ) use ( $allowed_keys ) {
+			return in_array( $key, $allowed_keys, true );
+		}, ARRAY_FILTER_USE_KEY );
 
-
-
-
-		return true;
+		return update_option( $this->get_option_key(), $data, true );
 	}
 }

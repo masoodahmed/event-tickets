@@ -29,7 +29,7 @@ class Ticket extends Email_Abstract {
 	 *
 	 * @var string
 	 */
-	public static string $id = 'tec_tickets_emails_ticket';
+	protected static string $id = 'tec_tickets_emails_ticket';
 
 	/**
 	 * Email slug.
@@ -38,7 +38,7 @@ class Ticket extends Email_Abstract {
 	 *
 	 * @var string
 	 */
-	public static string $slug = 'ticket';
+	protected static string $slug = 'ticket';
 
 	/**
 	 * Email template.

@@ -28,7 +28,7 @@ class Purchase_Receipt extends Email_Abstract {
 	 *
 	 * @var string
 	 */
-	public static string $id = 'tec_tickets_emails_purchase_receipt';
+	protected static string $id = 'tec_tickets_emails_purchase_receipt';
 
 	/**
 	 * Email slug.
@@ -37,7 +37,7 @@ class Purchase_Receipt extends Email_Abstract {
 	 *
 	 * @var string
 	 */
-	public static string $slug = 'purchase-receipt';
+	protected static string $slug = 'purchase-receipt';
 
 	/**
 	 * Email template.

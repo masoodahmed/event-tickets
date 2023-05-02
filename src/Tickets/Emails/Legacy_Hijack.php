@@ -74,8 +74,7 @@ class Legacy_Hijack {
 		if ( $is_rsvp ) {
 			if ( 'no' !== strtolower( $args['order_status'] ) ) {
 				$email_class      = tribe( Email\RSVP::class );
-				$use_ticket_email = tribe_get_option( $email_class->get_option_key( 'use-ticket-email' ), false );
-				if ( ! empty( $use_ticket_email ) ) {
+				if ( $email_class->get( 'use-ticket-email', false ) ) {
 					$email_class = tribe( Email\Ticket::class );
 				}
 			} else {
@@ -208,8 +207,7 @@ class Legacy_Hijack {
 			return false;
 		}
 
-		$use_ticket_email = tribe_get_option( $email_class->get_option_key( 'use-ticket-email' ), false );
-		if ( ! empty( $use_ticket_email ) ) {
+		if ( $email_class->get( 'use-ticket-email', false ) ) {
 			$email_class = tribe( Email\Ticket::class );
 		}
 

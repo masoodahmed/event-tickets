@@ -28,7 +28,7 @@ class Completed_Order extends Email_Abstract {
 	 *
 	 * @var string
 	 */
-	public static string $id = 'tec_tickets_emails_completed_order';
+	protected static string $id = 'tec_tickets_emails_completed_order';
 
 	/**
 	 * Email slug.
@@ -37,7 +37,7 @@ class Completed_Order extends Email_Abstract {
 	 *
 	 * @var string
 	 */
-	public static string $slug = 'completed-order';
+	protected static string $slug = 'completed-order';
 
 	/**
 	 * Email template.

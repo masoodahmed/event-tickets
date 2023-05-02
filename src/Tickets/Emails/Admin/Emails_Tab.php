@@ -102,14 +102,8 @@ class Emails_Tab {
 			wp_safe_redirect( $this->get_url( [ 'section' => $email_id, 'error' => 'tec-tickets-invalid-email' ] ) );
 		}
 
-		$email_post = $email->get_post();
-
-		if ( ! $email_post ) {
-			wp_safe_redirect( $this->get_url( [ 'section' => $email_id, 'error' => 'tec-tickets-invalid-email-post' ] ) );
-		}
-
 		$fields_to_save = tribe_get_request_var( 'tec-tickets-emails', [] );
-		$fields = array_filter( $email->get_settings_fields(), 'is_string', ARRAY_FILTER_USE_KEY );
+		$fields = array_filter( $email->get_settings(), 'is_string', ARRAY_FILTER_USE_KEY );
 
 		foreach ( $fields as $key => $field ) {
 			$value = null;

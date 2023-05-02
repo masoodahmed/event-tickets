@@ -26,7 +26,7 @@ use Tribe__Utils__Array as Arr;
  */
 abstract class Email_Abstract {
 
-	public const META_PREFIX = '_tec-tickets-emails-';
+	protected const OPTION_PREFIX = 'tec-tickets-emails-';
 
 	/**
 	 * Email ID.
@@ -35,7 +35,7 @@ abstract class Email_Abstract {
 	 *
 	 * @var string
 	 */
-	public static string $id;
+	protected static string $id;
 
 	/**
 	 * Email slug.
@@ -44,7 +44,7 @@ abstract class Email_Abstract {
 	 *
 	 * @var string
 	 */
-	public static string $slug;
+	protected static string $slug;
 
 	/**
 	 * Email template filename.
@@ -110,6 +110,28 @@ abstract class Email_Abstract {
 	protected ?array $data = null;
 
 	/**
+	 * Get ID.
+	 *
+	 * @since 5.5.10
+	 *
+	 * @return string
+	 */
+	public static function get_id(): string {
+		return static::$id;
+	}
+
+	/**
+	 * Get ID.
+	 *
+	 * @since 5.5.10
+	 *
+	 * @return string
+	 */
+	public static function get_slug(): string {
+		return static::$slug;
+	}
+
+	/**
 	 * Handles the hooking of a given email to the correct actions in WP.
 	 *
 	 * @since 5.5.9
@@ -141,7 +163,6 @@ abstract class Email_Abstract {
 
 		return array_merge( $data, $this->generate_default_data_from_settings() );
 	}
-
 
 	/**
 	 * Prepare the settings for this Email.
@@ -347,27 +368,14 @@ abstract class Email_Abstract {
 	}
 
 	/**
-	 * Get ID.
-	 *
-	 * @since 5.5.10
-	 *
-	 * @return string
-	 */
-	public static function get_id(): string {
-		return static::$id;
-	}
-
-	/**
 	 * Get setting option key.
 	 *
-	 * @since 5.5.10
-	 *
-	 * @param string $option The option name.
+	 * @since TBD
 	 *
 	 * @return string
 	 */
-	public function get_option_key( $option ): string {
-		return "tec-tickets-emails-{$this->slug}-{$option}";
+	protected function get_option_key(): string {
+		return static::OPTION_PREFIX . static::get_slug();
 	}
 
 	/**
@@ -567,14 +575,6 @@ abstract class Email_Abstract {
 		return $this->data;
 	}
 
-	protected function get_meta_key( string $meta_key ): string {
-		return static::META_PREFIX . sanitize_key( $meta_key );
-	}
-
-	protected function remove_meta_key_prefix( string $meta_key ): string {
-		return str_replace( static::META_PREFIX, '', $meta_key );
-	}
-
 	/**
 	 * Getter to access dynamic properties.
 	 *
@@ -583,15 +583,9 @@ abstract class Email_Abstract {
 	 * @return null|bool
 	 */
 	public function save_data(): ?bool {
-		$post = $this->get_post();
 
-		if ( ! $post ) {
-			return false;
-		}
 
-		foreach ( $this->data as $meta_key => $meta_value ) {
-			update_post_meta( $post->ID, $this->get_meta_key( $meta_key ), $meta_value );
-		}
+
 
 		return true;
 	}

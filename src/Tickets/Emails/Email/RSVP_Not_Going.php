@@ -27,7 +27,7 @@ class RSVP_Not_Going extends Email_Abstract {
 	 *
 	 * @var string
 	 */
-	public static string $id = 'tec_tickets_emails_rsvp_not_going';
+	protected static string $id = 'tec_tickets_emails_rsvp_not_going';
 
 	/**
 	 * Email slug.
@@ -36,7 +36,7 @@ class RSVP_Not_Going extends Email_Abstract {
 	 *
 	 * @var string
 	 */
-	public static string $slug = 'rsvp-not-going';
+	protected static string $slug = 'rsvp-not-going';
 
 	/**
 	 * Email template.

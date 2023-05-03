@@ -76,7 +76,7 @@ class Web_View {
 			//return new WP_Error( 'tec-tickets-emails-web-view-security-code-not-valid', 'The `security_code` parameter is not valid.' );
 		}
 
-		/** @var Tribe__Tickets__Editor__Template $template */
+		/** @var \Tribe__Tickets__Editor__Template $template */
 		$tickets_template = tribe( 'tickets.editor.template' );
 
 		$email_template = tribe( Email_Template::class );

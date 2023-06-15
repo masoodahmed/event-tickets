@@ -339,9 +339,6 @@ class Tribe__Tickets__Main {
 		Tribe__Main::instance();
 
 		add_action( 'tribe_common_loaded', [ $this, 'bootstrap' ], 0 );
-
-		// Admin home.
-		tribe_register_provider( Tribe\Tickets\Admin\Home\Service_Provider::class );
 	}
 
 	/**
@@ -385,6 +382,9 @@ class Tribe__Tickets__Main {
 
 		// Tickets Commerce providers.
 		tribe_register_provider( TEC\Tickets\Provider::class );
+
+		// Admin home.
+		tribe_register_provider( Tribe\Tickets\Admin\Home\Service_Provider::class );
 
 		tribe_singleton( 'tickets.rsvp', new Tribe__Tickets__RSVP );
 		tribe_singleton( 'tickets.commerce.cart', 'Tribe__Tickets__Commerce__Cart' );

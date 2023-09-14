@@ -132,7 +132,10 @@ abstract class Status_Abstract implements Status_Interface {
 		$order = tec_tc_get_order( $order );
 		$current_status = tribe( Status_Handler::class )->get_by_wp_slug( $order->post_status );
 
+		codecept_debug("New Slug: " . $new_status->get_wp_slug());
+		codecept_debug("Old Slug: " . $current_status->get_wp_slug());
 		if ( $current_status->get_wp_slug() === $new_status->get_wp_slug() ) {
+			codecept_debug("Old slug and new slug are equal");
 			return false;
 		}
 

@@ -276,11 +276,17 @@ class Order extends Abstract_Order {
 		}
 
 		$can_apply = $status->can_apply_to( $order_id, $status );
-		if ( ! $can_apply ) {
+
+		codecept_debug("Can Apply is..");
+		codecept_debug($can_apply ? "True" : "False");
+		if ( ! $can_apply || is_wp_error( $can_apply ) ) {
+			codecept_debug("Returning in the can_apply statement");
+			codecept_debug( $can_apply);
 			return $can_apply;
 		}
 
 		$args = array_merge( $extra_args, [ 'status' => $status->get_wp_slug() ] );
+		codecept_debug($args);
 
 		$updated = tec_tc_orders()->by_args(
 			[
@@ -294,7 +300,6 @@ class Order extends Abstract_Order {
 			$time = Dates::build_date_object()->format( Dates::DBDATETIMEFORMAT );
 			add_post_meta( $order_id, static::get_status_log_meta_key( $status ), $time );
 		}
-
 		return (bool) $updated;
 	}
 

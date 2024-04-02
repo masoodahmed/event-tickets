@@ -363,7 +363,14 @@ class Orders extends Report_Abstract {
 		$post_type_object    = get_post_type_object( $post->post_type );
 		$post_singular_label = $post_type_object->labels->singular_name;
 
-		$order_summary = new Commerce\Reports\Data\Order_Summary( $post_id );
+		
+		$cached = wp_cache_get( (int) $post_id, 'tec_tc_order_report_summary' );
+		if ( $cached ) {
+			$order_summary = $cached;
+		} else {
+			$order_summary = new Commerce\Reports\Data\Order_Summary( $post_id );
+			wp_cache_set( (int) $post_id, $order_summary, 'tec_tc_order_report_summary' );
+		}
 
 		$this->template_vars = [
 			'orders_table'        => tribe( Commerce\Admin_Tables\Orders::class ),

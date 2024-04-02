@@ -19,6 +19,7 @@ namespace TEC\Tickets;
 
 use TEC\Common\Contracts\Service_Provider;
 use TEC\Tickets\Commerce\Payments_Tab;
+use TEC\Tickets\Commerce\Reports\Data\Order_Summary_Cache_Controller;
 
 /**
  * Class Hooks.
@@ -49,6 +50,7 @@ class Hooks extends Service_Provider {
 		add_action( 'tribe_settings_after_save_' . Payments_Tab::$slug, [ $this, 'generate_payments_pages' ] );
 
 		$this->container->register( Ticket_Cache_Controller::class );
+		$this->container->register( Order_Summary_Cache_Controller::class );
 	}
 
 	/**
